@@ -33,11 +33,13 @@
 	var player = videojs('JustVideo', {
 		fill: true
 	});
-	player.poster("https://ipfs.io/ipfs/" + links[0]);
-	player.src({
-		src: "https://ipfs.io/ipfs/" + links[1] + "?filename=video.m3u8",
-		type: "application/x-mpegURL"
-	});
+	window.onload = function () {
+		player.poster("https://ipfs.io/ipfs/" + links[0]);
+		player.src({
+			src: "https://ipfs.io/ipfs/" + links[1] + "?filename=video.m3u8",
+			type: "application/x-mpegURL"
+		});
+	}
 </script>
 
 </body>
