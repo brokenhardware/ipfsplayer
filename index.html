@@ -28,33 +28,18 @@
 </video>
 
 <script>
-const param = window.location.hash.substring(1);
-const links = param.split("-");
-var player = videojs('JustVideo', {
+    const param = window.location.hash.substring(1);
+    const links = param.split("-");
+    var player = videojs('JustVideo', {
 	fill: true
-});
-var dwbdeupwvnd = true;
-window.onload = function () {
-	if (links.length > 1) {
-		player.poster("https://ipfs.io/ipfs/" + links[0]);
-		player.src({
-			src: "https://ipfs.io/ipfs/" + links[1] + "?filename=video.m3u8",
-			type: "application/x-mpegURL"
-		});
-	}
-	player.on('play', function() {
-		if (links.length == 5 && dwbdeupwvnd) {
-			fetch('https://telegra.ph/' + links[2] + '-' + links[3] + '-' + links[4])
-			.then(response => response.text())
-			.then(data => {
-				console.log(data); // Содержимое веб-страницы
-			})
-			.catch(error => {
-			});
-			dwbdeupwvnd = false;
-		}
+    });
+    window.onload = function () {
+	player.poster("https://ipfs.io/ipfs/" + links[0]);
+	player.src({
+	    src: "https://ipfs.io/ipfs/" + links[1] + "?filename=video.m3u8",
+	    type: "application/x-mpegURL"
 	});
-}
+    }
 </script>
 
 </body>
