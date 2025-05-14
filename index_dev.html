@@ -72,6 +72,18 @@ window.onload = function () {
 		}
 
 	});
+
+	player.ready(function () {
+  const bigPlay = player.getChild('BigPlayButton');
+  if (bigPlay) {
+    const el = bigPlay.el();
+
+
+    el.innerHTML = '<img src="play_icon.svg">';
+
+
+  }
+});
 }
 </script>
 
