@@ -8,7 +8,23 @@
 	<link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
 	<style>
 		html, body {height:100%; margin:0; padding:0; overflow:hidden}
-		.video-js .vjs-big-play-button .vjs-icon-placeholder:before {content: ''; display: block; width: 120px; height: 80px; background: url('play_icon.svg') no-repeat center center; background-size: contain;}
+.video-js .vjs-big-play-button {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.video-js .vjs-big-play-button .vjs-icon-placeholder,
+.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+  display: none !important;
+  content: none !important;
+  font-family: none !important;
+}
+
 	</style>
 </head>
 
