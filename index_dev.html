@@ -26,6 +26,15 @@
   font-family: none !important;
 }
 
+		.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 48px;
+  background: url('play_icon.svg') no-repeat center center;
+  background-size: contain;
+}
+
 	</style>
 </head>
 
@@ -75,13 +84,13 @@ window.onload = function () {
 	});
 
 	player.ready(function () {
-  const bigPlay = player.getChild('BigPlayButton');
+/*  const bigPlay = player.getChild('BigPlayButton');
   if (bigPlay) {
     const el = bigPlay.el();
 
 
     el.innerHTML = '<img src="play_icon.svg">';
-
+*/
 
   }
 });
