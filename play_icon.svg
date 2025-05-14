@@ -11,13 +11,17 @@
      id="defs1" />
   <g
      id="layer1">
+    <rect
+       style="fill:#3584e4;stroke-width:0.534881;-inkscape-stroke:none;paint-order:markers fill stroke"
+       id="rect1"
+       width="120.33727"
+       height="80.112419"
+       x="-0.16863251"
+       y="19.94379"
+       ry="40.05621" />
     <path
-       id="path14"
-       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#3584e4;fill-opacity:1;stroke-width:0.378484;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;paint-order:markers fill stroke;stop-color:#000000;stop-opacity:1"
-       d="M 8.3531842,92.840203 C 3.041326,87.914193 0,83.163175 0,60 0,36.836827 3.041326,32.085807 8.3531842,27.1598 15.551966,20.483934 29.794734,19.943791 60.084315,19.943791 c 30.289581,0 44.532345,0.540143 51.731125,7.216009 5.31187,4.926007 8.35319,9.677027 8.35319,32.8402 0,23.163175 -3.04132,27.914193 -8.35319,32.840203 -7.19878,6.675863 -21.441544,7.216007 -51.731125,7.216007 -30.289581,0 -44.532349,-0.540144 -51.7311308,-7.216007 z" />
-    <path
-       style="fill:#ffffff;stroke-width:0.310023;paint-order:markers fill stroke"
-       d="M 83.323403,63.297352 50.384816,82.314454 A 4.0330773,4.0330773 0 0 1 44.3352,78.821706 V 40.787503 a 4.0330773,4.0330773 0 0 1 6.049616,-3.492747 l 32.938587,19.017101 a 4.033077,4.033077 0 0 1 0,6.985495 z"
+       style="fill:#ffffff;stroke-width:0.278277;paint-order:markers fill stroke"
+       d="M 81.430446,62.939693 51.864784,80.009436 A 3.6200886,3.6200886 0 0 1 46.434651,76.874347 V 42.734862 a 3.6200886,3.6200886 0 0 1 5.430133,-3.135088 l 29.565662,17.069742 a 3.6200883,3.6200883 0 0 1 0,6.270177 z"
        id="path2" />
   </g>
 </svg>
