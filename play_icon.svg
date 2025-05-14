@@ -12,13 +12,13 @@
   <g
      id="layer1">
     <rect
-       style="fill:#3584e4;stroke-width:0.534881;-inkscape-stroke:none;paint-order:markers fill stroke"
+       style="fill:#3584e4;stroke-width:0.566929;-inkscape-stroke:none;paint-order:markers fill stroke"
        id="rect1"
-       width="120.33727"
-       height="80.112419"
-       x="-0.16863251"
-       y="19.94379"
-       ry="40.05621" />
+       width="120"
+       height="90"
+       x="0"
+       y="14.804605"
+       ry="45" />
     <path
        style="fill:#ffffff;stroke-width:0.278277;paint-order:markers fill stroke"
        d="M 81.430446,62.939693 51.864784,80.009436 A 3.6200886,3.6200886 0 0 1 46.434651,76.874347 V 42.734862 a 3.6200886,3.6200886 0 0 1 5.430133,-3.135088 l 29.565662,17.069742 a 3.6200883,3.6200883 0 0 1 0,6.270177 z"
