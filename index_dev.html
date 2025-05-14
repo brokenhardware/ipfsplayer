@@ -9,7 +9,13 @@
 	<style>
 		html, body {height:100%; margin:0; padding:0; overflow:hidden}
 		.video-js .vjs-big-play-button .vjs-icon-placeholder:before {content: ''; display: block; width: 60px; height: 60px; background: url('play_icon.svg') no-repeat center center; background-size: contain;}
-		.video-js .vjs-big-play-button .vjs-icon-placeholder:before {font-family: none; content: '';}
+		.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+  content: none !important;  /* удаляет иконку */
+  font-family: none !important; /* убирает шрифт иконок VideoJS */
+}
+		.video-js .vjs-big-play-button .vjs-icon-placeholder {
+  display: none !important;  /* скрывает сам элемент */
+}
 	</style>
 </head>
 
