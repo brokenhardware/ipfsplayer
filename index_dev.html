@@ -16,8 +16,8 @@
   padding: 0 !important;
   width: 120px !important;
   height: 120px !important;
-  top: 50% !important;
-  left: 50% !important;
+  top: 0% !important;
+  left: 0% !important;
 position:absolute;
   transform: translate(0px, 0px) !important;
   border-radius: 0 !important;
@@ -78,17 +78,14 @@ window.onload = function () {
 
 	});
 
-	player.ready(function () {
+player.ready(function () {
   const bigPlay = player.getChild('BigPlayButton');
   if (bigPlay) {
     const el = bigPlay.el();
-
-
-    el.innerHTML = '<img src="play_icon.svg">';
-
+    el.innerHTML = '<img src="play_icon.svg" />';
   }
-  
 });
+	
 }
 </script>
 
