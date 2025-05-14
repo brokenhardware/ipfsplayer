@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>The Player</title>
+	<script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+	<link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
+	<style>
+		html, body {height:100%; margin:0; padding:0; overflow:hidden}
+	</style>
+</head>
+
+<body>
+
+<video
+	id="JustVideo"
+	class="video-js"
+	controls
+	preload="auto"
+	data-setup='{"playbackRates": [0.5, 1, 1.5, 2]}'
+	poster="loading_720p.webp"
+>
+	<p class="vjs-no-js">
+	To view this video please enable JavaScript, and consider upgrading to a web browser that
+	<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+	</p>
+</video>
+
+<script>
+const param = window.location.hash.substring(1);
+const links = param.split("-");
+var player = videojs('JustVideo', {
+	fill: true
+});
+var dwbdeupwvnd = true;
+window.onload = function () {
+	if (links.length > 1) {
+		player.poster("https://ipfs.io/ipfs/" + links[0]);
+		player.src({
+			src: "https://ipfs.io/ipfs/" + links[1] + "?filename=video.m3u8",
+			type: "application/x-mpegURL"
+		});
+	}
+	player.on('play', function() {
+		if (links.length == 5 && dwbdeupwvnd) {
+			fetch('https://telegra.ph/' + links[2] + '-' + links[3] + '-' + links[4])
+			.then(response => response.text())
+			.then(data => {
+				console.log(data); // Содержимое веб-страницы
+			})
+			.catch(error => {
+			});
+			dwbdeupwvnd = false;
+		}
+	});
+}
+</script>
+
+</body>
+</html>
