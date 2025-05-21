@@ -8,6 +8,29 @@
 	<link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
 	<style>
 		html, body {height:100%; margin:0; padding:0; overflow:hidden}
+.video-js .vjs-big-play-button {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: 80px !important;
+  height: 80px !important;
+  top: 50% !important;
+  left: 50% !important;
+	margin:-40px 0 0 -40px;
+  /*transform: translate(-50%, -50%) !important;*/
+  border-radius: 0 !important;
+}
+
+.video-js .vjs-big-play-button img {
+  width: 80px;
+  height: 80px;
+  display: block;
+	&:hover {
+        background-color: transparent;
+        opacity: .7;
+      }
+}
 	</style>
 </head>
 
@@ -54,6 +77,14 @@ window.onload = function () {
 			dwbdeupwvnd = false;
 		}
 	});
+
+player.ready(function () {
+  const bigPlay = player.getChild('BigPlayButton');
+  if (bigPlay) {
+    const el = bigPlay.el();
+    el.innerHTML = '<img src="play_icon.svg" />';
+  }
+});
 }
 </script>
 
