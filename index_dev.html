@@ -1,136 +1,97 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<title>The Player</title>
-	<script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
-	<link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
-	<script src="https://cdn.jsdelivr.net/npm/cids@1.1.9/dist/index.min.js"></script>
-	<style>
-		html, body {height:100%; margin:0; padding:0; overflow:hidden}
-		.video-js .vjs-big-play-button {
-			background: none !important;
-			border: none !important;
-			box-shadow: none !important;
-			padding: 0 !important;
-			width: 80px !important;
-			height: 80px !important;
-			top: 50% !important;
-			left: 50% !important;
-			margin:-40px 0 0 -40px;
-			border-radius: 0 !important;
-		}
-		.video-js .vjs-big-play-button img {
-			width: 80px;
-			height: 80px;
-			display: block;
-		}
-		.video-js .vjs-big-play-button img:hover {
-			background-color: transparent;
-			opacity: .7;
-		}
-	</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>The Player</title>
+    <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+    <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
+    <style>
+        html, body {height:100%; margin:0; padding:0; overflow:hidden; background: #000;}
+        .video-js .vjs-big-play-button {
+            background: none !important; border: none !important; box-shadow: none !important;
+            padding: 0 !important; width: 80px !important; height: 80px !important;
+            top: 50% !important; left: 50% !important; margin:-40px 0 0 -40px;
+        }
+        .video-js .vjs-big-play-button img { width: 80px; height: 80px; display: block; }
+        .video-js .vjs-big-play-button img:hover { opacity: .7; }
+    </style>
 </head>
 
 <body>
 
-<video
-	id="JustVideo"
-	class="video-js"
-	controls
-	preload="auto"
-	data-setup='{"playbackRates": [0.5, 1, 1.5, 2]}'
-	poster="loading_720p.webp"
->
-	<p class="vjs-no-js">
-	To view this video please enable JavaScript, and consider upgrading to a web browser that
-	<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-	</p>
+<video id="JustVideo" class="video-js" controls preload="auto" poster="loading_720p.webp">
+    <p class="vjs-no-js">To view this video please enable JavaScript.</p>
 </video>
 
-<script>
-const param = window.location.hash.substring(1);
-const links = param.split("-");
-var player = videojs('JustVideo', {
-	fill: true
-});
-var dwbdeupwvnd = true;
+<script type="module">
+    // Импортируем только нужные части из современного стека multiformats
+    import { CID } from 'https://esm.sh/multiformats/cid';
+    import { base32 } from 'https://esm.sh/multiformats/bases/base32';
 
-// Функция для конвертации CID в формат CIDv1 Base32 (нужен для субдоменов)
-function convertToV1(cidStr) {
-	try {
-		const CID = window.CIDS;
-		const c = new CID(cidStr);
-		return c.toV1().toString('base32');
-	} catch (e) {
-		console.error("Ошибка конвертации CID:", cidStr);
-		return cidStr;
-	}
-}
+    const param = window.location.hash.substring(1);
+    const links = param.split("-");
+    const player = videojs('JustVideo', { fill: true, playbackRates: [0.5, 1, 1.5, 2] });
+    let dwbdeupwvnd = true;
 
-// Функция для загрузки и модификации m3u8
-async function loadAndFixM3U8(manifestCid) {
-	const gateway = "https://dweb.link/ipfs/";
-	const url = gateway + manifestCid + "?filename=video.m3u8";
+    // Функция конвертации CIDv0 (Qm...) в CIDv1 (baf...) Base32
+    function convertToV1(cidStr) {
+        try {
+            const c = CID.parse(cidStr);
+            return c.toV1().toString(base32.encoder);
+        } catch (e) {
+            console.error("CID conversion error:", e);
+            return cidStr;
+        }
+    }
 
-	try {
-		const response = await fetch(url);
-		let content = await response.text();
+    // Обработка m3u8
+    async function loadAndFixM3U8(manifestCid) {
+        const gatewayUrl = `https://${convertToV1(manifestCid)}.ipfs.dweb.link?filename=video.m3u8`;
+        
+        try {
+            const response = await fetch(gatewayUrl);
+            if (!response.ok) throw new Error('Network response was not ok');
+            let content = await response.text();
 
-		// Регулярное выражение ищет ссылки вида https://ipfs.io/ipfs/CID...
-		// и заменяет их на https://CIDv1.ipfs.dweb.link
-		const regex = /https:\/\/ipfs\.io\/ipfs\/([a-zA-Z0-9]+)(\?filename=[^\s]*)?/g;
-		
-		content = content.replace(regex, (match, cid) => {
-			const v1 = convertToV1(cid);
-			return `https://${v1}.ipfs.dweb.link`;
-		});
+            // Заменяем старые ссылки ipfs.io на новые субдомены dweb.link
+            const regex = /https:\/\/ipfs\.io\/ipfs\/([a-zA-Z0-9]+)/g;
+            content = content.replace(regex, (match, cid) => {
+                const v1 = convertToV1(cid);
+                return `https://${v1}.ipfs.dweb.link`;
+            });
 
-		// Создаем Blob из измененного текста, чтобы плеер мог его прочитать
-		const blob = new Blob([content], { type: 'application/x-mpegURL' });
-		return URL.createObjectURL(blob);
-	} catch (e) {
-		console.error("Ошибка при обработке m3u8:", e);
-		return url; // Возврат исходной ссылки в случае провала
-	}
-}
+            const blob = new Blob([content], { type: 'application/x-mpegURL' });
+            return URL.createObjectURL(blob);
+        } catch (e) {
+            console.warn("Falling back to direct link due to error:", e);
+            return gatewayUrl;
+        }
+    }
 
-window.onload = async function () {
-	if (links.length > 1) {
-		// Обложка: конвертируем в v1 и используем субдомен dweb.link
-		const posterV1 = convertToV1(links[0]);
-		player.poster(`https://${posterV1}.ipfs.dweb.link`);
+    window.addEventListener('load', async () => {
+        if (links.length > 1) {
+            // Установка постера
+            const posterV1 = convertToV1(links[0]);
+            player.poster(`https://${posterV1}.ipfs.dweb.link`);
 
-		// Манифест: скачиваем, парсим и подставляем
-		const modifiedM3U8Url = await loadAndFixM3U8(links[1]);
-		
-		player.src({
-			src: modifiedM3U8Url,
-			type: "application/x-mpegURL"
-		});
-	}
+            // Установка видео
+            const modifiedM3U8Url = await loadAndFixM3U8(links[1]);
+            player.src({ src: modifiedM3U8Url, type: "application/x-mpegURL" });
+        }
 
-	player.on('play', function() {
-		if (links.length == 5 && dwbdeupwvnd) {
-			fetch('https://telegra.ph/' + links[2] + '-' + links[3] + '-' + links[4])
-			.then(response => response.text())
-			.then(data => {
-				console.log("Analytics sent");
-			})
-			.catch(error => {});
-			dwbdeupwvnd = false;
-		}
-	});
+        player.on('play', function() {
+            if (links.length === 5 && dwbdeupwvnd) {
+                fetch('https://telegra.ph/' + links[2] + '-' + links[3] + '-' + links[4]).catch(() => {});
+                dwbdeupwvnd = false;
+            }
+        });
 
-	player.ready(function () {
-		const bigPlay = player.getChild('BigPlayButton');
-		if (bigPlay) {
-			const el = bigPlay.el();
-			el.innerHTML = '<img src="play_icon.svg" />';
-		}
-	});
-}
+        player.ready(() => {
+            const bigPlay = player.getChild('BigPlayButton');
+            if (bigPlay) bigPlay.el().innerHTML = '<img src="play_icon.svg" />';
+        });
+    });
 </script>
 
 </body>
