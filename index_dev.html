@@ -7,25 +7,22 @@
     <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
     <link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
     <style>
-        html, body {height:100%; margin:0; padding:0; overflow:hidden; background: #000;}
+        html, body { height:100%; margin:0; padding:0; overflow:hidden; background: #000; }
         .video-js .vjs-big-play-button {
             background: none !important; border: none !important; box-shadow: none !important;
-            padding: 0 !important; width: 80px !important; height: 80px !important;
+            width: 80px !important; height: 80px !important;
             top: 50% !important; left: 50% !important; margin:-40px 0 0 -40px;
         }
         .video-js .vjs-big-play-button img { width: 80px; height: 80px; display: block; }
-        .video-js .vjs-big-play-button img:hover { opacity: .7; }
     </style>
 </head>
 
 <body>
 
-<video id="JustVideo" class="video-js" controls preload="auto" poster="loading_720p.webp">
-    <p class="vjs-no-js">To view this video please enable JavaScript.</p>
-</video>
+<video id="JustVideo" class="video-js" controls preload="auto" poster="loading_720p.webp"></video>
 
 <script type="module">
-    // Импортируем только нужные части из современного стека multiformats
+    // Импортируем современные библиотеки для работы с CID напрямую через ESM
     import { CID } from 'https://esm.sh/multiformats/cid';
     import { base32 } from 'https://esm.sh/multiformats/bases/base32';
 
@@ -34,53 +31,67 @@
     const player = videojs('JustVideo', { fill: true, playbackRates: [0.5, 1, 1.5, 2] });
     let dwbdeupwvnd = true;
 
-    // Функция конвертации CIDv0 (Qm...) в CIDv1 (baf...) Base32
+    // Конвертация CID в v1 Base32 (для субдоменов dweb.link)
     function convertToV1(cidStr) {
         try {
-            const c = CID.parse(cidStr);
+            const c = CID.parse(cidStr.trim());
             return c.toV1().toString(base32.encoder);
         } catch (e) {
-            console.error("CID conversion error:", e);
+            console.error("Ошибка парсинга CID:", cidStr, e);
             return cidStr;
         }
     }
 
-    // Обработка m3u8
-    async function loadAndFixM3U8(manifestCid) {
-        const gatewayUrl = `https://${convertToV1(manifestCid)}.ipfs.dweb.link?filename=video.m3u8`;
-        
+    async function startPlayer() {
+        if (links.length < 2) return;
+
+        const posterCid = links[0];
+        const manifestCid = links[1];
+
+        // 1. Устанавливаем постер (через субдомен)
+        const posterV1 = convertToV1(posterCid);
+        player.poster(`https://${posterV1}.ipfs.dweb.link`);
+
+        // 2. Обработка манифеста m3u8
         try {
-            const response = await fetch(gatewayUrl);
-            if (!response.ok) throw new Error('Network response was not ok');
+            // Используем ipfs.io для первичного fetch, так как он часто лучше отдает CORS для текстовых файлов
+            const fetchUrl = `https://ipfs.io/ipfs/${manifestCid}?filename=video.m3u8`;
+            
+            const response = await fetch(fetchUrl);
+            if (!response.ok) throw new Error('Gateway error');
+            
             let content = await response.text();
 
-            // Заменяем старые ссылки ipfs.io на новые субдомены dweb.link
-            const regex = /https:\/\/ipfs\.io\/ipfs\/([a-zA-Z0-9]+)/g;
-            content = content.replace(regex, (match, cid) => {
+            // Регулярка ищет ссылки https://ipfs.io/ipfs/CID... и заменяет их на субдомены dweb.link
+            const regex = /https:\/\/ipfs\.io\/ipfs\/([a-zA-Z0-9]+)(?:\?filename=([^\s"']+))?/g;
+            
+            content = content.replace(regex, (match, cid, filename) => {
                 const v1 = convertToV1(cid);
-                return `https://${v1}.ipfs.dweb.link`;
+                // Формируем вид https://CID.ipfs.dweb.link/filename
+                return `https://${v1}.ipfs.dweb.link${filename ? '/' + filename : ''}`;
             });
 
+            // Создаем Blob из модифицированного текста
             const blob = new Blob([content], { type: 'application/x-mpegURL' });
-            return URL.createObjectURL(blob);
+            const blobUrl = URL.createObjectURL(blob);
+
+            player.src({ src: blobUrl, type: "application/x-mpegURL" });
+
         } catch (e) {
-            console.warn("Falling back to direct link due to error:", e);
-            return gatewayUrl;
+            console.warn("CORS/Fetch error, fallback to direct dweb.link:", e);
+            // Если fetch не удался, просто даем прямую ссылку (замена внутри m3u8 не сработает)
+            player.src({ 
+                src: `https://dweb.link/ipfs/${manifestCid}?filename=video.m3u8`, 
+                type: "application/x-mpegURL" 
+            });
         }
     }
 
-    window.addEventListener('load', async () => {
-        if (links.length > 1) {
-            // Установка постера
-            const posterV1 = convertToV1(links[0]);
-            player.poster(`https://${posterV1}.ipfs.dweb.link`);
+    // Запуск при загрузке
+    window.addEventListener('load', () => {
+        startPlayer();
 
-            // Установка видео
-            const modifiedM3U8Url = await loadAndFixM3U8(links[1]);
-            player.src({ src: modifiedM3U8Url, type: "application/x-mpegURL" });
-        }
-
-        player.on('play', function() {
+        player.on('play', () => {
             if (links.length === 5 && dwbdeupwvnd) {
                 fetch('https://telegra.ph/' + links[2] + '-' + links[3] + '-' + links[4]).catch(() => {});
                 dwbdeupwvnd = false;
