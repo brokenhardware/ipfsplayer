@@ -6,33 +6,30 @@
 	<title>The Player</title>
 	<script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
 	<link href="https://vjs.zencdn.net/8.16.1/video-js.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/cids@1.1.9/dist/index.min.js"></script>
 	<style>
 		html, body {height:100%; margin:0; padding:0; overflow:hidden}
-
-.video-js .vjs-big-play-button {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  width: 80px !important;
-  height: 80px !important;
-  top: 50% !important;
-  left: 50% !important;
-	margin:-40px 0 0 -40px;
-  /*transform: translate(-50%, -50%) !important;*/
-  border-radius: 0 !important;
-}
-
-.video-js .vjs-big-play-button img {
-  width: 80px;
-  height: 80px;
-  display: block;
-	&:hover {
-        background-color: transparent;
-        opacity: .7;
-      }
-}
-
+		.video-js .vjs-big-play-button {
+			background: none !important;
+			border: none !important;
+			box-shadow: none !important;
+			padding: 0 !important;
+			width: 80px !important;
+			height: 80px !important;
+			top: 50% !important;
+			left: 50% !important;
+			margin:-40px 0 0 -40px;
+			border-radius: 0 !important;
+		}
+		.video-js .vjs-big-play-button img {
+			width: 80px;
+			height: 80px;
+			display: block;
+		}
+		.video-js .vjs-big-play-button img:hover {
+			background-color: transparent;
+			opacity: .7;
+		}
 	</style>
 </head>
 
@@ -51,7 +48,7 @@
 	<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
 	</p>
 </video>
-	
+
 <script>
 const param = window.location.hash.substring(1);
 const links = param.split("-");
@@ -59,36 +56,80 @@ var player = videojs('JustVideo', {
 	fill: true
 });
 var dwbdeupwvnd = true;
-window.onload = function () {
+
+// Функция для конвертации CID в формат CIDv1 Base32 (нужен для субдоменов)
+function convertToV1(cidStr) {
+	try {
+		const CID = window.CIDS;
+		const c = new CID(cidStr);
+		return c.toV1().toString('base32');
+	} catch (e) {
+		console.error("Ошибка конвертации CID:", cidStr);
+		return cidStr;
+	}
+}
+
+// Функция для загрузки и модификации m3u8
+async function loadAndFixM3U8(manifestCid) {
+	const gateway = "https://dweb.link/ipfs/";
+	const url = gateway + manifestCid + "?filename=video.m3u8";
+
+	try {
+		const response = await fetch(url);
+		let content = await response.text();
+
+		// Регулярное выражение ищет ссылки вида https://ipfs.io/ipfs/CID...
+		// и заменяет их на https://CIDv1.ipfs.dweb.link
+		const regex = /https:\/\/ipfs\.io\/ipfs\/([a-zA-Z0-9]+)(\?filename=[^\s]*)?/g;
+		
+		content = content.replace(regex, (match, cid) => {
+			const v1 = convertToV1(cid);
+			return `https://${v1}.ipfs.dweb.link`;
+		});
+
+		// Создаем Blob из измененного текста, чтобы плеер мог его прочитать
+		const blob = new Blob([content], { type: 'application/x-mpegURL' });
+		return URL.createObjectURL(blob);
+	} catch (e) {
+		console.error("Ошибка при обработке m3u8:", e);
+		return url; // Возврат исходной ссылки в случае провала
+	}
+}
+
+window.onload = async function () {
 	if (links.length > 1) {
-		player.poster("https://ipfs.io/ipfs/" + links[0]);
+		// Обложка: конвертируем в v1 и используем субдомен dweb.link
+		const posterV1 = convertToV1(links[0]);
+		player.poster(`https://${posterV1}.ipfs.dweb.link`);
+
+		// Манифест: скачиваем, парсим и подставляем
+		const modifiedM3U8Url = await loadAndFixM3U8(links[1]);
+		
 		player.src({
-			src: "https://ipfs.io/ipfs/" + links[1] + "?filename=video.m3u8",
+			src: modifiedM3U8Url,
 			type: "application/x-mpegURL"
 		});
 	}
+
 	player.on('play', function() {
 		if (links.length == 5 && dwbdeupwvnd) {
 			fetch('https://telegra.ph/' + links[2] + '-' + links[3] + '-' + links[4])
 			.then(response => response.text())
 			.then(data => {
-				console.log(data); // Содержимое веб-страницы
+				console.log("Analytics sent");
 			})
-			.catch(error => {
-			});
+			.catch(error => {});
 			dwbdeupwvnd = false;
 		}
-
 	});
 
-player.ready(function () {
-  const bigPlay = player.getChild('BigPlayButton');
-  if (bigPlay) {
-    const el = bigPlay.el();
-    el.innerHTML = '<img src="play_icon.svg" />';
-  }
-});
-	
+	player.ready(function () {
+		const bigPlay = player.getChild('BigPlayButton');
+		if (bigPlay) {
+			const el = bigPlay.el();
+			el.innerHTML = '<img src="play_icon.svg" />';
+		}
+	});
 }
 </script>
 
