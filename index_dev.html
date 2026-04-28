@@ -28,8 +28,10 @@
     // Импортируем только нужные части из современного стека multiformats
     // import { CID } from 'https://esm.sh/multiformats/cid';
     // import { base32 } from 'https://esm.sh/multiformats/bases/base32';
-    import { CID } from 'https://unpkg.com/multiformats/cid?module';
-    import { base32 } from 'https://unpkg.com/multiformats/bases/base32?module';
+    // import { CID } from 'https://unpkg.com/multiformats/cid?module';
+    // import { base32 } from 'https://unpkg.com/multiformats/bases/base32?module';
+    import { CID } from 'https://jspm.dev/multiformats/cid';
+    import { base32 } from 'https://jspm.dev/multiformats/bases/base32';
 
     const param = window.location.hash.substring(1);
     const links = param.split("-");
